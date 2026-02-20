@@ -50,12 +50,12 @@ typedef struct {
 static Simulacao* gsim = NULL;
 
 void config(Simulacao* sim);
-bool mutexes(Simulacao* sim);
+void mutexes(Simulacao* sim);
 void threadsE(Simulacao* sim);
 void* veterano(void* arg);
 void* novato(void* arg);
-void cleanup(Simulacao* sim);
 void stopThreads(Simulacao* sim);
+void cleanup(Simulacao* sim);
 
 static inline void sleep_ms(int ms) { 
     usleep(ms * 1000); 
@@ -120,7 +120,7 @@ void config(Simulacao* sim) {
     }
 }
 
-bool mutexes(Simulacao* sim) {
+void mutexes(Simulacao* sim) {
     sim->restaurantes = malloc(sizeof(Restaurante) * sim->numRestaurantes);
 
     for (int i = 0; i < sim->numRestaurantes; i++) {
@@ -141,8 +141,6 @@ bool mutexes(Simulacao* sim) {
         sim->dadosEntregadores[i].restaurantes = sim->restaurantes;
         sim->dadosEntregadores[i].numRestaurantes = sim->numRestaurantes;
     }
-
-    return true;
 }
 
 void threadsE(Simulacao* sim) {
