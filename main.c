@@ -127,8 +127,11 @@ void mutexes(Simulacao* sim) {
         sim->restaurantes[i].id = i + 1;
         pthread_mutex_init(&sim->restaurantes[i].chaveMoto, NULL);
         pthread_mutex_init(&sim->restaurantes[i].lanchePronto, NULL);
-    }
 
+    }
+}
+
+    void threadsE(Simulacao* sim) {
     sim->threadsEntregadores = malloc(sizeof(pthread_t) * sim->numEntregadores);
     sim->dadosEntregadores = malloc(sizeof(DadosEntregador) * sim->numEntregadores);
     pthread_mutex_init(&sim->mutexAtivos, NULL);
@@ -141,9 +144,7 @@ void mutexes(Simulacao* sim) {
         sim->dadosEntregadores[i].restaurantes = sim->restaurantes;
         sim->dadosEntregadores[i].numRestaurantes = sim->numRestaurantes;
     }
-}
 
-void threadsE(Simulacao* sim) {
     void* (*rotinas[])(void*) = {veterano, novato};
 
     for (int i = 0; i < sim->numEntregadores; i++) {
