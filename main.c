@@ -42,8 +42,8 @@ typedef struct {
     Restaurante* restaurantes;
     pthread_t* threadsEntregadores;
     DadosEntregador* dadosEntregadores;
-    pthread_mutex_t activeMutex;
-    pthread_cond_t activeCond;
+    pthread_mutex_t mutexAtivos;
+    pthread_cond_t condAtiva;
     int total;
 } Simulacao;
 
@@ -77,11 +77,11 @@ int main() {
         stopThreads(&sim);
         cleanup(&sim);
     } else {
-        pthread_mutex_lock(&sim.activeMutex);
+        pthread_mutex_lock(&sim.mutexAtivos);
         while (sim.total > 0) {
-            pthread_cond_wait(&sim.activeCond, &sim.activeMutex);
+            pthread_cond_wait(&sim.condAtiva, &sim.mutexAtivos);
         }
-        pthread_mutex_unlock(&sim.activeMutex);
+        pthread_mutex_unlock(&sim.mutexAtivos);
         cleanup(&sim);
     }
 
@@ -131,8 +131,8 @@ bool mutexes(Simulacao* sim) {
 
     sim->threadsEntregadores = malloc(sizeof(pthread_t) * sim->numEntregadores);
     sim->dadosEntregadores = malloc(sizeof(DadosEntregador) * sim->numEntregadores);
-    pthread_mutex_init(&sim->activeMutex, NULL);
-    pthread_cond_init(&sim->activeCond, NULL);
+    pthread_mutex_init(&sim->mutexAtivos, NULL);
+    pthread_cond_init(&sim->condAtiva, NULL);
     sim->total = 0;
 
     for (int i = 0; i < sim->numEntregadores; i++) {
@@ -151,9 +151,9 @@ void threadsE(Simulacao* sim) {
     for (int i = 0; i < sim->numEntregadores; i++) {
         pthread_create(&sim->threadsEntregadores[i], NULL, rotinas[i % 2], &sim->dadosEntregadores[i]);
         pthread_detach(sim->threadsEntregadores[i]);
-        pthread_mutex_lock(&sim->activeMutex);
+        pthread_mutex_lock(&sim->mutexAtivos);
         sim->total++;
-        pthread_mutex_unlock(&sim->activeMutex);
+        pthread_mutex_unlock(&sim->mutexAtivos);
     }
 }
 
@@ -203,10 +203,10 @@ void* veterano(void* arg) {
         sleep_ms(200);
     }
     
-    pthread_mutex_lock(&gsim->activeMutex);
+    pthread_mutex_lock(&gsim->mutexAtivos);
     gsim->total--;
-    pthread_cond_signal(&gsim->activeCond);
-    pthread_mutex_unlock(&gsim->activeMutex);
+    pthread_cond_signal(&gsim->condAtiva);
+    pthread_mutex_unlock(&gsim->mutexAtivos);
     return NULL;
 }
 
@@ -256,10 +256,10 @@ void* novato(void* arg) {
         sleep_ms(200);
     }
 
-    pthread_mutex_lock(&gsim->activeMutex);
+    pthread_mutex_lock(&gsim->mutexAtivos);
     gsim->total--;
-    pthread_cond_signal(&gsim->activeCond);
-    pthread_mutex_unlock(&gsim->activeMutex);
+    pthread_cond_signal(&gsim->condAtiva);
+    pthread_mutex_unlock(&gsim->mutexAtivos);
     return NULL;
 }
 
@@ -285,6 +285,6 @@ void cleanup(Simulacao* sim) {
         free(sim->dadosEntregadores);
         sim->dadosEntregadores = NULL;
     }
-    pthread_mutex_destroy(&sim->activeMutex);
-    pthread_cond_destroy(&sim->activeCond);
+    pthread_mutex_destroy(&sim->mutexAtivos);
+    pthread_cond_destroy(&sim->condAtiva);
 }
