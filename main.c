@@ -183,7 +183,6 @@ void* veterano(void* arg) {
                 sleep_ms(1000 + (rand() % 1200));
             }
         } else { 
-            printf("[Veterano %d]: Pegou o lanche do Restaurante %d\n", dados->id, res->id);
             pthread_mutex_lock(&res->lanchePronto);
             sucesso = true;
         }
@@ -236,7 +235,6 @@ void* novato(void* arg) {
                 sleep_ms(1000 + (rand() % 1200));
             }
         } else { 
-            printf("[Novato %d]: Pegou a chave da moto do Restaurante %d\n", dados->id, res->id);
             pthread_mutex_lock(&res->chaveMoto);
             sucesso = true;
         }
